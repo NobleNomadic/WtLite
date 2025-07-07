@@ -4,6 +4,7 @@ import requests, sys
 includeTemperature = False
 includeRain = False
 includeWind = False
+location = "London"
 
 def printBanner():
     print(""" _       ____  __    _ __
@@ -15,8 +16,8 @@ def printBanner():
 
 def fetchWeatherData():
     # Base URL for wttr.in
-    fullRequest = "https://wttr.in/London?format="
-    
+    fullRequest = f"https://wttr.in/{location}?format="
+
     # Add parts to the URL
     if includeTemperature:
         fullRequest += "%t "
@@ -52,7 +53,7 @@ def printWeatherData(weatherData):
 
 if __name__ == "__main__":
     tokenList = sys.argv[1:]
-    
+
     # Parse command-line arguments
     for i, token in enumerate(tokenList):
         if token == "-temp":
@@ -61,6 +62,8 @@ if __name__ == "__main__":
             includeRain = True
         elif token == "-wind":
             includeWind = True
+
+    location = tokenList[0]
 
     # Print banner
     printBanner()
