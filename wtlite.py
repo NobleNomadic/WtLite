@@ -1,5 +1,11 @@
 import requests, sys
 
+# Ansi escape codes for colors
+colorYellow = "\x1b[33m"
+colorBlue = "\x1b[34m"
+colorWhite = "\x1b[37m"
+colorReset = "\x1b[0m"
+
 # Global data for what to fetch and print
 includeTemperature = False
 includeRain = False
@@ -42,14 +48,14 @@ def printWeatherData(weatherData):
 
     # Printing temperature
     if includeTemperature:
-        print(f"Temperature: {weatherTokens[0]}")
+        print(f"{colorYellow}[*]{colorReset} Temperature: {colorYellow + weatherTokens[0] + colorReset}")
 
     # Printing rain
     if includeRain:
-        print(f"Rain: {weatherTokens[1]}")
+        print(f"{colorBlue}[\\]{colorReset} Rain: {colorBlue + weatherTokens[1] + colorReset}")
 
     if includeWind:
-        print(f"Wind: {weatherTokens[2]}")
+        print(f"{colorWhite}[~]{colorReset} Wind: {colorWhite + weatherTokens[2] + colorReset}")
 
 if __name__ == "__main__":
     tokenList = sys.argv[1:]
