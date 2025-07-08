@@ -1,79 +1,75 @@
 import requests, sys
 
-# Ansi escape codes for colors
+# ANSI escape codes
 colorYellow = "\x1b[33m"
 colorBlue = "\x1b[34m"
 colorWhite = "\x1b[37m"
 colorReset = "\x1b[0m"
 
-# Global data for what to fetch and print
+# Global flags
 includeTemperature = False
 includeRain = False
 includeWind = False
 location = "London"
 
 def printBanner():
-    print(""" _       ____  __    _ __
-| |     / / /_/ /   (_) /____
-| | /| / / __/ /   / / __/ _ \\
-| |/ |/ / /_/ /___/ / /_/  __/
-|__/|__/\__/_____/_/\__/\___/ """)
+    print(""" _      ____  __   _ __
+| | /| / / /_/ /  (_) /____
+| |/ |/ / __/ /__/ / __/ -_)
+|__/|__/\__/____/_/\__/\__/ """)
     return
 
 def fetchWeatherData():
-    # Base URL for wttr.in
-    fullRequest = f"https://wttr.in/{location}?format="
+    url = f"https://wttr.in/{location}?format="
+    if includeTemperature: url += "%t "
+    if includeRain:        url += "%p "
+    if includeWind:        url += "%w "
 
-    # Add parts to the URL
-    if includeTemperature:
-        fullRequest += "%t "
-
-    if includeRain:
-        fullRequest += "%p "
-
-    if includeWind:
-        fullRequest += "%w "
-  
-    # Perform the request
     try:
-        response = requests.get(fullRequest)
-        response.raise_for_status()  # Check if the request was successful
+        response = requests.get(url)
+        response.raise_for_status()
         return response
-    except requests.exceptions.RequestException as e:
+    except requests.RequestException as e:
         print(f"Error fetching weather data: {e}")
         sys.exit(1)
 
 def printWeatherData(weatherData):
-    weatherTokens = weatherData.text.split(" ")
+    tokens = weatherData.text.strip().split(" ")
+    i = 0
 
-    # Printing temperature
     if includeTemperature:
-        print(f"{colorYellow}[*]{colorReset} Temperature: {colorYellow + weatherTokens[0] + colorReset}")
+        print(f"{colorYellow}[*]{colorReset} Temperature: {colorYellow}{tokens[i]}{colorReset}")
+        i += 1
 
-    # Printing rain
     if includeRain:
-        print(f"{colorBlue}[\\]{colorReset} Rain: {colorBlue + weatherTokens[1] + colorReset}")
+        print(f"{colorBlue}[\\]{colorReset} Rain: {colorBlue}{tokens[i]}{colorReset}")
+        i += 1
 
     if includeWind:
-        print(f"{colorWhite}[~]{colorReset} Wind: {colorWhite + weatherTokens[2] + colorReset}")
+        print(f"{colorWhite}[~]{colorReset} Wind: {colorWhite}{tokens[i]}{colorReset}")
 
 if __name__ == "__main__":
-    tokenList = sys.argv[1:]
+    args = sys.argv[1:]
 
-    # Parse command-line arguments
-    for i, token in enumerate(tokenList):
-        if token == "-temp":
+    if not args:
+        print("Usage: python wtlite.py <location> [-temp] [-rain] [-wind]")
+        sys.exit(1)
+
+    # First non-flag argument is location
+    for arg in args:
+        if not arg.startswith("-"):
+            location = arg
+            break
+
+    # Flags
+    for arg in args:
+        if arg == "-temp":
             includeTemperature = True
-        elif token == "-rain":
+        elif arg == "-rain":
             includeRain = True
-        elif token == "-wind":
+        elif arg == "-wind":
             includeWind = True
 
-    location = tokenList[0]
-
-    # Print banner
     printBanner()
-
-    # Fetch and print weather data
-    weatherData = fetchWeatherData()
-    printWeatherData(weatherData)
+    data = fetchWeatherData()
+    printWeatherData(data)
